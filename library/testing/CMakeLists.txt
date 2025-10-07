@@ -26,6 +26,7 @@ if(F3D_MODULE_UI)
   list(APPEND libf3dSDKTests_list
     TestSDKConsole.cxx
     TestSDKDropZone.cxx
+    TestSDKDropZoneDeprecated.cxx
     TestSDKDropZoneNoLogo.cxx
     TestSDKDropZoneMinSize.cxx
     TestSDKDynamicBackgroundColor.cxx
@@ -134,7 +135,7 @@ set_target_properties(libf3dSDKTests PROPERTIES
   CXX_VISIBILITY_PRESET hidden
   )
 
-target_compile_definitions(libf3dSDKTests PRIVATE GL_SILENCE_DEPRECATION F3D_MODULE_EXR=$<BOOL:${F3D_MODULE_EXR}>)
+target_compile_definitions(libf3dSDKTests PRIVATE GL_SILENCE_DEPRECATION)
 
 # Remove this once VTK 9.3 support is removed
 if(VTK_VERSION VERSION_GREATER_EQUAL 9.3.20240729)
@@ -143,6 +144,10 @@ endif()
 
 if (F3D_MODULE_EXR)
   target_compile_definitions(libf3dSDKTests PRIVATE F3D_MODULE_EXR)
+endif ()
+
+if (F3D_MODULE_WEBP)
+  target_compile_definitions(libf3dSDKTests PRIVATE F3D_MODULE_WEBP)
 endif ()
 
 # List tests that do not require rendering
@@ -182,6 +187,7 @@ endif()
 
 if(F3D_MODULE_UI AND NOT F3D_TESTING_ENABLE_LONG_TIMEOUT_TESTS)
   set_tests_properties(libf3d::TestSDKInteractorCallBack PROPERTIES DISABLED ON)
+  set_tests_properties(libf3d::TestSDKTriggerInteractions PROPERTIES DISABLED ON)
 endif()
 
 set_tests_properties(libf3d::TestSDKUtils PROPERTIES ENVIRONMENT "F3D_TEST_ENV_STANDARD=TestEnv;F3D_TEST_ENV_EXTENDED=TestËnv;F3D_TEST_ENV_UTF8=🤔;")

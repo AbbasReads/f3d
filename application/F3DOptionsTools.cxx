@@ -86,6 +86,7 @@ static inline const std::array<CLIGroup, 8> CLIOptions = {{
       { "loading-progress", "", "Show loading progress bar", "<bool>", "1" },
       { "animation-progress", "", "Show animation progress bar", "<bool>", "1" },
       { "multi-file-mode", "", R"(Choose the behavior when opening multiple files. "single" will show one file at a time, "all" will show all files in a single scene, "dir" will show files from the same directory in the same scene.)", "<single|all|dir>", "" },
+      { "multi-file-regex", "", R"_(Regular expression pattern to group files. Captured groups are replaced with "*" so that, for example, the pattern "part(\d+)" would group files "foo-part1.xyz" and "foo-part2.xyz" together as "foo-part*.xyz")_", "<regex>", "" },
       { "recursive-dir-add", "", "Add directories recursively", "<bool>", "1" },
       { "remove-empty-file-groups", "", "Remove file groups that results into an empty scene", "<bool>", "1" },
       { "up", "", "Up direction", "<direction>", "" },
@@ -107,6 +108,9 @@ static inline const std::array<CLIGroup, 8> CLIOptions = {{
       { "animation-time", "", "Set animation time to load", "<time>", "" },
       { "font-file", "", "Path to a FreeType compatible font file", "<file_path>", ""},
       { "font-scale", "", "Scale fonts", "<ratio>", ""},
+#if F3D_MODULE_UI
+      { "backdrop-opacity", "", "UI backdrop opacity", "<value>", ""}, 
+#endif
       { "command-script", "", "Path to a script file containing commands to execute", "<file_path>", "" } } },
   { "Material",
     { {"point-sprites", "o", "Show sphere sprites instead of surfaces", "<bool>", "1" },

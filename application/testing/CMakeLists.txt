@@ -247,6 +247,14 @@ f3d_test(NAME TestMultiblockMetaData DATA mb.vtm ARGS -m UI)
 f3d_test(NAME TestRemoveEmptyFileGroups DATA mb/mb_3_0.vtt mb/mb_0_0.vtu ARGS -n --remove-empty-file-groups UI)
 f3d_test(NAME TestMultiFileMetaData DATA mb/recursive ARGS -m --multi-file-mode=all UI)
 f3d_test(NAME TestMultiFileModeDir DATA mb ARGS -n --multi-file-mode=dir --recursive-dir-add UI)
+set(MULTIFILES 
+  multi-file/cube-part1of2.glb multi-file/cube-part2of2.glb
+  multi-file/cube-part1of3.glb multi-file/cube-part2of3.glb multi-file/cube-part3of3.glb
+  multi-file/tet-part1of2.glb multi-file/tet-part2of2.glb
+  multi-file/tet-part1of3.glb multi-file/tet-part2of3.glb multi-file/tet-part3of3.glb)
+f3d_test(NAME TestMultiFileRegexA DATA ${MULTIFILES} ARGS -n "--multi-file-regex=(\\d+)of\\d" --camera-direction=-xyz UI)
+f3d_test(NAME TestMultiFileRegexB DATA ${MULTIFILES} ARGS -n "--multi-file-regex=part(.+)" --camera-direction=-xyz UI)
+f3d_test(NAME TestMultiFileRegexInvalid ARGS "--multi-file-regex=(.+" REGEXP "invalid regular expression: \"\\(.+")
 f3d_test(NAME TestTIFF DATA f3d.tif ARGS -sy --up=-Y)
 f3d_test(NAME TestLightIntensityBrighter DATA cow.vtp ARGS --light-intensity=5.0)
 f3d_test(NAME TestLightIntensityDarker DATA cow.vtp ARGS --light-intensity=0.2)
@@ -310,6 +318,9 @@ f3d_test(NAME TestAnimationInputChangeColoring DATA v_rock2.mdl ARGS --scalar-co
 f3d_test(NAME TestAnimationUserMatrixPointSprites DATA BoxAnimated.gltf ARGS --point-sprites --point-sprites-size=50 --animation-time=2)
 f3d_test(NAME TestCollinearVectors DATA dragon.vtu ARGS --up=0,1,0 --camera-direction=0,2,0)
 f3d_test(NAME TestAnimationInputChangePointSprites DATA v_rock2.mdl ARGS --point-sprites --point-sprites-size=50 --animation-time=0.01 --animation-indices=1)
+f3d_test(NAME TestBackdropOpacityOpaque DATA suzanne.ply ARGS -n --backdrop-opacity=1.0 UI)
+f3d_test(NAME TestBackdropOpacityTransparent DATA suzanne.ply ARGS -n --backdrop-opacity=0.0 UI)
+f3d_test(NAME TestBackdropOpacityMedium DATA suzanne.ply ARGS -n --backdrop-opacity=0.5 UI)
 
 # Color map files testing
 f3d_test(NAME TestColorMapFileFullPath DATA dragon.vtu ARGS --colormap-file=${F3D_SOURCE_DIR}/testing/data/viridis8.png --scalar-coloring --coloring-component=1)
@@ -420,8 +431,8 @@ if(VTK_VERSION VERSION_GREATER_EQUAL 9.3.20240203)
       f3d_test(NAME TestDefaultConfigFileSPZ DATA hornedlizard_small_d3.spz CONFIG config_build LONG_TIMEOUT UI)
       f3d_test(NAME TestThumbnailConfigFileSPZ DATA hornedlizard_small_d3.spz CONFIG thumbnail_build LONG_TIMEOUT)
       f3d_test(NAME TestSPZVersion3 DATA bonsai.spz ARGS -osy --up=-Y --point-sprites-size=1 --point-sprites-type=gaussian --camera-position=-2.6,0.5,-3.2)
-      f3d_test(NAME TestSPZCorruptedGZIP DATA wrong_spz_gzip_corrupted.spz ARGS -osy --verbose REGEXP "Invalid gzip compression" NO_BASELINE)
-      f3d_test(NAME TestSPZTruncatedGZIP DATA truncated_gzip.spz ARGS -osy --verbose REGEXP "Truncated spz file" NO_BASELINE)
+      f3d_test(NAME TestSPZCorruptedGZIP DATA wrong_spz_gzip_corrupted.spz ARGS -osy --verbose REGEXP "Invalid GZIP file" NO_BASELINE)
+      f3d_test(NAME TestSPZTruncatedGZIP DATA truncated_gzip.spz ARGS -osy --verbose REGEXP "Invalid GZIP file" NO_BASELINE)
       f3d_test(NAME TestWrongSPZMagic DATA wrong_spz_magic.spz ARGS -osy --verbose REGEXP "Incompatible SPZ header" NO_BASELINE)
       f3d_test(NAME TestWrongSPZVersion DATA wrong_spz_version.spz ARGS -osy --verbose REGEXP "Incompatible SPZ version. Only 2 and 3 are supported" NO_BASELINE)
     endif()
@@ -695,6 +706,14 @@ endif()
 
 if(F3D_MODULE_EXR)
   f3d_test(NAME TestVersionEXR ARGS --version REGEXP "Module OpenEXR: ON")
+endif()
+
+if(F3D_MODULE_WEBP)
+  f3d_test(NAME TestVersionWebP ARGS --version REGEXP "Module WebP: ON")
+  # Needs https://gitlab.kitware.com/vtk/vtk/-/merge_requests/11922
+  if(VTK_VERSION VERSION_GREATER_EQUAL 9.4.20250220)
+    f3d_test(NAME TestOBJWebP DATA cube_webp.obj)
+  endif()
 endif()
 
 if(F3D_PLUGIN_BUILD_ALEMBIC)
@@ -997,7 +1016,7 @@ f3d_test(NAME TestInteractionCycleScalarsCompCheck DATA dragon.vtu ARGS -b --sca
 f3d_test(NAME TestInteractionConfigFileNoColorBar DATA multi CONFIG ${F3D_SOURCE_DIR}/testing/configs/complex.json INTERACTION) #Right;Right;Left
 f3d_test(NAME TestInteractionConfigFileBindings DATA dragon.vtu CONFIG ${F3D_SOURCE_DIR}/testing/configs/bindings.json INTERACTION UI) #Ctrl+Shift+O;Ctrl+O;Shift+O;O;3
 f3d_test(NAME TestInteractionConfigFileMulti DATA multi CONFIG ${F3D_SOURCE_DIR}/testing/configs/complex.json INTERACTION UI) #SY;Right;XG;Right;N;Right;Right
-f3d_test(NAME TestInteractionConfigFileAndCommand DATA multi ARGS -o CONFIG ${F3D_SOURCE_DIR}/testing/configs/complex.json INTERACTION UI) #OX;Right;N;Right;Right;Right
+f3d_test(NAME TestInteractionConfigFileAndCommand DATA multi ARGS -o CONFIG ${F3D_SOURCE_DIR}/testing/configs/complex.json INTERACTION UI LONG_TIMEOUT) #OX;Right;N;Right;Right;Right
 f3d_test(NAME TestInteractionConfigFileImperative DATA dragon.vtu suzanne.stl ARGS --edges CONFIG ${F3D_SOURCE_DIR}/testing/configs/imperative.json INTERACTION) #E;Right
 f3d_test(NAME TestInteractionConfigFileImperativeNoData CONFIG ${F3D_SOURCE_DIR}/testing/configs/imperative.json INTERACTION NO_DATA_FORCE_RENDER UI) #X;Up
 f3d_test(NAME TestInteractionConfigFileOptional DATA zombie.mdl f3d.glb CONFIG ${F3D_SOURCE_DIR}/testing/configs/complex.json INTERACTION UI) #Right
@@ -1044,6 +1063,7 @@ f3d_test(NAME TestInteractionConsoleRender ARGS --coloring-by-cells DATA wavelet
 f3d_test(NAME TestInteractionConsoleCamera DATA f3d.glb INTERACTION UI) #Escape;set_camera top;Return
 f3d_test(NAME TestInteractionConsoleScrollbar DATA f3d.glb INTERACTION UI) #Escape;a;Enter;Grab scrollbar
 f3d_test(NAME TestInteractionConsoleEmptyCommand DATA f3d.glb INTERACTION UI) #Escape;Enter
+f3d_test(NAME TestInteractionConsoleOverCheatSheet DATA f3d.glb INTERACTION UI) #h;Escape;Enter
 
 # Need SSIM comparison for some reason
 if(VTK_VERSION VERSION_GREATER_EQUAL 9.3.20240729)
@@ -1083,6 +1103,8 @@ f3d_test(NAME TestInteractionMinimalConsoleValidCommand DATA f3d.glb INTERACTION
 f3d_test(NAME TestInteractionMinimalConsoleInvalidCommand DATA f3d.glb INTERACTION UI) #Colon;foo;Return
 f3d_test(NAME TestInteractionMinimalConsoleResize DATA f3d.glb INTERACTION UI) #Colon;foo;Return;Colon
 f3d_test(NAME TestInteractionMinimalConsoleBadgeRemains DATA f3d.glb INTERACTION UI) #Colon;foo;Return;Colon;Escape
+f3d_test(NAME TestInteractionMinimalConsoleOverCheatSheet DATA f3d.glb INTERACTION UI) #h;:
+f3d_test(NAME TestInteractionMinimalConsoleOverCheatSheetAndFilename DATA f3d.glb INTERACTION UI) #h;n;:
 
 if (F3D_MODULE_TINYFILEDIALOGS)
   f3d_test(NAME TestInteractionFileOpen INTERACTION NO_BASELINE ENV CTEST_OPEN_DIALOG_FILE=${F3D_SOURCE_DIR}/testing/data/cow.vtp)
